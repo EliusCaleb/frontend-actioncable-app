@@ -1,8 +1,14 @@
-import React from 'react'
+import { MessageType } from "../type";
 
-const Message = () => {
+type Props = {
+  message: MessageType
+}
+
+const Message = ({message}: Props) => {
   return (
-    <div>Message</div>
+    <div>
+          {message.content}
+    </div>
   )
 }
 

@@ -1,9 +1,59 @@
-import React from 'react'
+import { useState } from "react";
+import { useAppDispatch } from "../app/hooks";
+import { sendMessageAsync } from "../features/users/usersSlice";
+import { MessageType, sendUserMessageDataType, UserType } from "../type";
 
 const Entry = () => {
-  return (
-    <div>Entry</div>
-  )
-}
+  const dispatch = useAppDispatch();
+  const [message, setMessage] = useState("");
 
-export default Entry
+  const buildDataToSend = () => {
+    let currentUser: UserType = JSON.parse(
+      localStorage.getItem("currentUser") || "{}"
+    );
+    let msg: MessageType = {
+      content: `(${currentUser.username}) ${message}`,
+    };
+
+    let data: sendUserMessageDataType = {
+      message: msg,
+      user: currentUser,
+    };
+    return data;
+  };
+
+  const handleSend = () => {
+    dispatch(sendMessageAsync(buildDataToSend()));
+    setMessage("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSend();
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex flex-row justify-between mb-1 bg-slate-500">
+        <input
+          onKeyDown={(e) => handleKeyDown(e)}
+          className="w-full"
+          type="text"
+          value={message}
+          placeholder="Message"
+          onChange={(e) => setMessage(e.target.value)}
+        />
+
+        <button
+          className="bg-ill-secondary rounded-md p-1 ml-1 mr-1"
+          onClick={() => handleSend()}
+        >
+          SEND
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default Entry;

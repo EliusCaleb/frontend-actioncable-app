@@ -1,57 +1,51 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "./app/hooks";
+import Entry from "./components/Entry";
+import JoinChat from "./components/JoinChat";
+import Messages from "./components/Messages";
+import Users from "./components/Users";
+import { getMessagesAsync } from "./features/messages/messagesSlice";
+import { allUserAsync, selectUserLoggedIn, setUserAsLoggedIn } from "./features/users/usersSlice";
+import { UserType } from "./type";
 
 function App() {
+  const dispatch = useAppDispatch();
+  const currentUserLoggedIn = useAppSelector(selectUserLoggedIn)
+  const userPreviouslyCreated = () => {
+    let currentUser: UserType = JSON.parse(localStorage.getItem("currentUser") || "{}")
+    if (currentUser.username) {
+      dispatch(setUserAsLoggedIn(true))
+    }
+  };
+
+  useEffect(() => {
+    dispatch(getMessagesAsync())
+    dispatch(allUserAsync())
+    userPreviouslyCreated()
+  })
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
+    <div>
+    {!currentUserLoggedIn &&
+      <div>
+        <JoinChat />
+      </div>
+    }
+    {currentUserLoggedIn &&
+      <div className="grid grid-cols-8 gap-1 rounded-md">
+        <div className="col-span-1 bg-ill-main min-h-screen" >
+          <Users />
+        </div>
+        <div className="col-span-7 flex flex-col justify-between">
+          <div className="">
+            <Messages />
+          </div>
+          <div>
+          <Entry />
+          </div>
+        </div>
+      </div>
+    }
+  </div >
   );
 }
 
